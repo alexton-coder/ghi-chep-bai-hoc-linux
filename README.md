@@ -1,8 +1,34 @@
 # Ghi chép bài học trên Linux — Hermes
 
 Skill độc lập **`ghi-chep-bai-hoc-linux`** cho Hermes: nghe bài học cục bộ,
-đối chiếu phụ đề/slide/demo và ghi HTML tiếng Việt theo diễn biến. Giữ các
-bước thực hành, lần sửa, kết quả và phần còn thiếu. Không cần cài skill gốc.
+tự xem bản ghi, lưu toàn bộ transcript trước rồi tóm tắt lớp học sau.
+Không cần cài skill gốc.
+
+**Bản cập nhật 02/11/2026 — recorded_review / transcript-first.**
+
+## Chế độ tự xem bản ghi
+
+- Hermes được phát/dừng, tua tới/lùi, đổi tốc độ và mở lại bài để xử lý đủ.
+  Quy tắc giữ playback khi xem live không áp dụng cho chế độ mặc định này.
+- Ưu tiên nhận dạng file hợp lệ trực tiếp; chỉ thu tiếng player khi cần.
+  Thử 1× trước, chỉ tăng tốc sau khi kiểm tra chất lượng nhận dạng.
+- Đổi vị trí/tốc độ phải tạo lượt thu và bảng ánh xạ mới. Không nhầm thời
+  gian audio thu nhanh với mốc video gốc; xem lại chỗ thiếu và loại trùng
+  do replay theo mốc, giữ câu thầy thực sự nhắc lại ở mốc khác.
+- Pause nội bộ để xử lý rồi được tiếp tục. Người dùng yêu cầu dừng thì
+  dừng nhiệm vụ và chờ, không tự xóa STOP hoặc tự Join họp live.
+
+## Đầu ra bắt buộc, theo thứ tự
+
+1. **transcript-toan-bai.txt:** giữ toàn bộ lời nhận dạng, không rút ý, kèm
+   mốc/nhãn chưa rõ. Giữ raw TXT/SRT của từng đoạn làm nguồn đối chiếu.
+   Chỉ xuất SRT tổng khi đã đối chiếu mốc về bản gốc.
+2. **trang-thai.json:** tiến độ, chỉ mục nguồn, các lượt playback và phần thiếu.
+3. **tom-tat-lop-hoc.html:** sau khi lưu/kiểm tra transcript, tóm tắt chương,
+   nội dung chính, quy trình, ví dụ, kết luận và bài tập thật, dẫn transcript.
+
+Còn khoảng thiếu phải ghi CHƯA ĐẦY ĐỦ trong transcript và tóm tắt tạm.
+Helper chỉ tạo các đoạn nguồn; Hermes phải ghép toàn bài và tóm tắt riêng.
 
 ## Tải và cài
 
@@ -11,7 +37,7 @@ bước thực hành, lần sửa, kết quả và phần còn thiếu. Không c
 [Checksum SHA-256](./SHA256SUMS.txt)
 
 ```text
-4ecfacd2a6645020545e5b15cbe4f05764d9e7da19243b369cb231031576404a
+787ea60e4481038b3ab64b18b309f94a1afe4c4a8d88a179949621af96d2660a
 ```
 
 ZIP chứa thư mục `ghi-chep-bai-hoc-linux/`, gồm `SKILL.md`, hai tài liệu
@@ -26,7 +52,8 @@ kho skill Hermes; sao lưu nếu đã có bản cùng tên. Không ghi đè skil
 
 ## Prompt gửi Hermes
 
-> Cài skill riêng `ghi-chep-bai-hoc-linux` từ repository
+> Cài hoặc cập nhật skill riêng `ghi-chep-bai-hoc-linux`, bản recorded_review /
+> transcript-first, từ repository
 > https://github.com/alexton-coder/ghi-chep-bai-hoc-linux . Đọc README, tải
 > ZIP và đối chiếu SHA-256 trong SHA256SUMS.txt; giải nén an toàn, giữ đủ
 > SKILL.md, references và scripts. Đọc hướng dẫn và kiểm tra mã bằng cơ chế
@@ -35,16 +62,18 @@ kho skill Hermes; sao lưu nếu đã có bản cùng tên. Không ghi đè skil
 > tra phiên hiện tại nhận được skill; nếu cần tải lại phiên thì báo rõ.
 > Báo đường dẫn thực tế, hệ điều hành, công cụ/model còn thiếu và khả năng
 > truy cập phiên âm thanh. Trong bước cài chỉ kiểm tra chỉ đọc, chưa bắt
-> đầu ghi âm, đổi đường tiếng, tải model hoặc cài dependency. Không dùng
+> đầu ghi âm, đổi đường tiếng, tải model hoặc cài dependency. Khi giao xử
+> lý bản ghi, mặc định tự tua/đổi tốc độ/mở lại để lưu transcript đầy đủ
+> trước, tóm tắt riêng sau; giữ mốc và khoảng thiếu trung thực. Không dùng
 > force hay vô hiệu hóa kiểm tra. Phân biệt cài thành công với đã thử thu
 > live thành công; nếu bị chặn, báo đúng bước và lý do.
 
 ## Đường âm thanh Linux
 
 Ứng dụng bài học → sink riêng → monitor riêng → FFmpeg chia WAV liên tục
-→ Whisper.cpp tiếng Việt + Silero VAD → Hermes đọc/đối chiếu → HTML.
+→ Whisper.cpp tiếng Việt + Silero VAD → transcript toàn bài → tóm tắt HTML.
 
-- **Live:** Linux có PulseAudio hoặc PipeWire + `pipewire-pulse`, pactl hỗ
+- **Thu tiếng player:** Linux có PulseAudio hoặc PipeWire + `pipewire-pulse`, pactl hỗ
   trợ JSON, Python 3.9+, FFmpeg có input pulse, ffprobe, whisper-cli và model
   Whisper/Silero có sẵn. PipeWire thuần không có backend trực tiếp trong gói.
 - **File:** `transcribe_file.py` đọc file audio/video được cung cấp hợp lệ;
@@ -62,12 +91,18 @@ kho skill Hermes; sao lưu nếu đã có bản cùng tên. Không ghi đè skil
   tài nguyên từ routing.json/ledger, không gỡ mù theo ID cũ.
 
 Helper không tự cài/tải gì, gọi API ngoài, tham gia lớp hay gửi host.
-TXT/SRT không tự thành ghi chép: Hermes phải đọc và cập nhật HTML.
+TXT/SRT từng đoạn không tự thành transcript toàn bài: Hermes phải ghép
+đúng timeline, lưu rồi tóm tắt riêng.
 Xem `references/linux-audio.md` trong ZIP để vận hành và nghiệm thu.
 
 ## Đã kiểm tra gì?
 
 Ngày 02/11/2026, trên máy macOS làm gói:
+
+Bản cập nhật recorded_review chỉ sửa hướng dẫn và đầu ra, không đổi hai
+script. Đã kiểm tra YAML, liên kết và ZIP khớp nguồn; các kiểm tra bộ thu
+dưới đây là kết quả lần tạo script trước đó, không phải bằng chứng mới
+về thao tác player hoặc chất lượng transcript/tóm tắt trên Linux.
 
 - 10 kiểm tra đạt: logic phục hồi/nhận dạng luồng, tránh thay đổi luồng lạ,
   giữ sink khi không thể khôi phục, đọc CSV đoạn đã đóng, kiểm tra chỉ đọc,
